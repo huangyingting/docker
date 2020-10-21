@@ -37,6 +37,8 @@
     redis_path: "{{ lookup('env', 'SYMFONY__ENV__REDIS_PATH')|default('~', true) }}"
     redis_password: "{{ lookup('env', 'SYMFONY__ENV__REDIS_PASSWORD')|default('~', true) }}"
     sentry_dsn: "{{ lookup('env', 'SYMFONY__ENV__SENTRY_DSN')|default('~', true) }}"
+    fos_oauth_server_access_token_lifetime: "{{ lookup('env', 'SYMFONY__ENV__FOS_OAUTH_SERVER_ACCESS_TOKEN_LIFETIME')|default('3600', true) }}"
+    fos_oauth_server_refresh_token_lifetime: "{{ lookup('env', 'SYMFONY__ENV__FOS_OAUTH_SERVER_REFRESH_TOKEN_LIFETIME')|default('1209600', true) }}"
 
   tasks:
 

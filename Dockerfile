@@ -2,7 +2,7 @@ FROM alpine:3.10
 
 LABEL maintainer "Marvin Steadfast <marvin@xsteadfastx.org>"
 
-ARG WALLABAG_VERSION=2.3.8
+ARG WALLABAG_VERSION=master
 
 RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
@@ -56,14 +56,39 @@ RUN set -ex \
  && ln -sf /dev/stderr /var/log/nginx/error.log \
  && curl -s https://getcomposer.org/installer | php \
  && mv composer.phar /usr/local/bin/composer \
- && git clone --branch $WALLABAG_VERSION --depth 1 https://github.com/wallabag/wallabag.git /var/www/wallabag
+ && git clone --branch $WALLABAG_VERSION --depth 1 https://github.com/huangyingting/wallabag.git /var/www/wallabag
 
 COPY root /
 
 RUN set -ex \
  && cd /var/www/wallabag \
- && SYMFONY_ENV=prod composer install --no-dev -o --prefer-dist --no-progress \
- && chown -R nobody:nobody /var/www/wallabag
+ && SYMFONY_ENV=prod COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev -o --prefer-dist --no-progress --no-interaction \
+ && chown -R nobody:nobody /var/www/wallabag \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/itnext.io.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/instagram-engineering.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/netflixtechblog.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/robinhood.engineering.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/bytes.grubhub.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/code.tubitv.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/developers.500px.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/blog.bernd-ruecker.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/engblog.nextdoor.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/engineering.checkr.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/tech.affirm.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/engineering.talkdesk.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/flexport.engineering.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/bytes.swiggy.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.marqeta.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/blog.coinbase.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/blog.gojekengineering.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/blog.discord.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/instagram-engineering.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/itnext.io.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/netflixtechblog.com.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/robinhood.engineering.txt \
+ && cp /var/www/wallabag/vendor/j0k3r/graby-site-config/medium.com.txt /var/www/wallabag/vendor/j0k3r/graby-site-config/engineering.pandora.com.txt
+
+COPY site_config/ /var/www/wallabag/vendor/j0k3r/graby-site-config/
 
 EXPOSE 80
 ENTRYPOINT ["/entrypoint.sh"]
