@@ -7,6 +7,8 @@ ARG WALLABAG_VERSION=master
 RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 
+ADD https://api.github.com/repos/huangyingting/wallabag/git/refs/heads/$WALLABAG_VERSION version.json
+
 RUN set -ex \
  && apk update \
  && apk upgrade --available \
