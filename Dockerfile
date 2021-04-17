@@ -4,7 +4,6 @@ LABEL maintainer "Marvin Steadfast <marvin@xsteadfastx.org>"
 
 ARG WALLABAG_VERSION=master
 
-RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 
 ADD https://api.github.com/repos/huangyingting/wallabag/git/refs/heads/$WALLABAG_VERSION version.json
@@ -46,19 +45,23 @@ RUN set -ex \
       php7-xmlreader \
       php7-tidy \
       php7-intl \
-      py-mysqldb \
-      py-psycopg2 \
+      py3-mysqlclient \
+      py3-psycopg2 \
       py-simplejson \
       rabbitmq-c \
       s6 \
       tar \
       tzdata \
+      make \
+      bash \
  && rm -rf /var/cache/apk/* \
  && ln -sf /dev/stdout /var/log/nginx/access.log \
  && ln -sf /dev/stderr /var/log/nginx/error.log \
  && curl -s https://getcomposer.org/installer | php \
  && mv composer.phar /usr/local/bin/composer \
- && git clone --branch $WALLABAG_VERSION --depth 1 https://github.com/huangyingting/wallabag.git /var/www/wallabag
+ && composer selfupdate --1 \
+ && git clone --branch $WALLABAG_VERSION --depth 1 https://github.com/huangyingting/wallabag.git /var/www/wa
+llabag
 
 COPY root /
 

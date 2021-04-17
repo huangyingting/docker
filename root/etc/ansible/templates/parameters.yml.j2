@@ -1,6 +1,5 @@
 parameters:
     database_driver: {{ database_driver }}
-    database_driver_class: {{ database_driver_class }}
     database_host: {{ database_host }}
     database_port: {{ database_port }}
     database_name: {{ database_name }}
@@ -36,6 +35,11 @@ parameters:
     fos_oauth_server_refresh_token_lifetime: {{ fos_oauth_server_refresh_token_lifetime }}
     fos_oauth_server_access_token_lifetime: {{ fos_oauth_server_access_token_lifetime }}
 
+    # how long the access token should live in seconds for the API
+    fos_oauth_server_access_token_lifetime: 3600
+    # how long the refresh token should life in seconds for the API
+    fos_oauth_server_refresh_token_lifetime: 1209600
+
     from_email: {{ from_email }}
 
     rss_limit: 50
@@ -54,5 +58,8 @@ parameters:
     redis_path: {{ redis_path }}
     redis_password: {{ redis_password }}
 
-    # Sentry
+    # sentry logging
     sentry_dsn: {{ sentry_dsn }}
+
+    # User-friendly name of your instance for 2FA issuer
+    server_name: {{ server_name }}

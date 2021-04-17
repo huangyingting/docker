@@ -1,6 +1,6 @@
 # What is wallabag?
 
-[![Build Status](https://travis-ci.org/wallabag/docker.svg?branch=master)](https://travis-ci.org/wallabag/docker)
+![CI](https://github.com/wallabag/docker/workflows/CI/badge.svg)
 [![Docker Stars](https://img.shields.io/docker/stars/wallabag/wallabag.svg?maxAge=2592000)](https://hub.docker.com/r/wallabag/wallabag/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/wallabag/wallabag.svg?maxAge=2592000)](https://hub.docker.com/r/wallabag/wallabag/)
 
@@ -18,7 +18,6 @@ Default login is `wallabag:wallabag`.
 - `-e POSTGRES_PASSWORD=...` (needed for the postgres container to initialise and for the entrypoint in the wallabag container to create a database and user if not there)
 - `-e POSTGRES_USER=...` (needed for the posgres container to initialise and for the entrypoint in the wallabag container to create a database and user if not there)
 - `-e SYMFONY__ENV__DATABASE_DRIVER=...` (defaults to "pdo_sqlite", this sets the database driver to use)
-- `-e SYMFONY__ENV__DATABASE_DRIVER_CLASS=...` (sets the database driver class to use)
 - `-e SYMFONY__ENV__DATABASE_HOST=...` (defaults to "127.0.0.1", if use mysql this should be the name of the mariadb container)
 - `-e SYMFONY__ENV__DATABASE_PORT=...` (port of the database host)
 - `-e SYMFONY__ENV__DATABASE_NAME=...`(defaults to "symfony", this is the name of the database to use)
@@ -43,19 +42,20 @@ Default login is `wallabag:wallabag`.
 - `-e SYMFONY__ENV__REDIS_PASSWORD=...` (defaults to "~", this is the password defined in the Redis server configuration)
 - `-e SYMFONY__ENV__SENTRY_DSN=...` (defaults to "~", this is the data source name for sentry)
 - `-e POPULATE_DATABASE=...`(defaults to "True". Does the DB has to be populated or is it an existing one)
+- `-e SYMFONY__ENV__SERVER_NAME=...` (defaults to "Your wallabag instance". Specifies a user-friendly name for the 2FA issuer)
 
 ## SQLite
 
 The easiest way to start wallabag is to use the SQLite backend. You can spin that up with
 
 ```
-$ docker run -p 80:80 wallabag/wallabag
+$ docker run -p 80:80 -e "SYMFONY__ENV__DOMAIN_NAME=http://localhost" wallabag/wallabag
 ```
 
-and point your browser to `http://localhost:80`. For persistent storage you should start the container with a volume:
+and point your browser to `http://localhost`. For persistent storage you should start the container with a volume:
 
 ```
-$ docker run -v /opt/wallabag/data:/var/www/wallabag/data -v /opt/wallabag/images:/var/www/wallabag/web/assets/images -p 80:80 wallabag/wallabag
+$ docker run -v /opt/wallabag/data:/var/www/wallabag/data -v /opt/wallabag/images:/var/www/wallabag/web/assets/images -p 80:80 -e "SYMFONY__ENV__DOMAIN_NAME=http://localhost" wallabag/wallabag
 ```
 
 ## MariaDB / MySQL
@@ -64,7 +64,7 @@ For using MariaDB or MySQL you have to define some environment variables with th
 
 ```
 $ docker run --name wallabag-db -e "MYSQL_ROOT_PASSWORD=my-secret-pw" -d mariadb
-$ docker run --name wallabag --link wallabag-db:wallabag-db -e "MYSQL_ROOT_PASSWORD=my-secret-pw" -e "SYMFONY__ENV__DATABASE_DRIVER=pdo_mysql" -e "SYMFONY__ENV__DATABASE_HOST=wallabag-db" -e "SYMFONY__ENV__DATABASE_PORT=3306" -e "SYMFONY__ENV__DATABASE_NAME=wallabag" -e "SYMFONY__ENV__DATABASE_USER=wallabag" -e "SYMFONY__ENV__DATABASE_PASSWORD=wallapass" -e "SYMFONY__ENV__DATABASE_CHARSET=utf8mb4" -p 80:80 wallabag/wallabag
+$ docker run --name wallabag --link wallabag-db:wallabag-db -e "MYSQL_ROOT_PASSWORD=my-secret-pw" -e "SYMFONY__ENV__DATABASE_DRIVER=pdo_mysql" -e "SYMFONY__ENV__DATABASE_HOST=wallabag-db" -e "SYMFONY__ENV__DATABASE_PORT=3306" -e "SYMFONY__ENV__DATABASE_NAME=wallabag" -e "SYMFONY__ENV__DATABASE_USER=wallabag" -e "SYMFONY__ENV__DATABASE_PASSWORD=wallapass" -e "SYMFONY__ENV__DATABASE_CHARSET=utf8mb4" -e "SYMFONY__ENV__DOMAIN_NAME=http://localhost" -p 80:80 wallabag/wallabag
 ```
 
 ## PostgreSQL
@@ -73,7 +73,7 @@ For using PostgreSQL you have to define some environment variables with the cont
 
 ```
 $ docker run --name wallabag-db -e "POSTGRES_PASSWORD=my-secret-pw" -e "POSTGRES_USER=my-super-user" -d postgres:9.6
-$ docker run --name wallabag --link wallabag-db:wallabag-db -e "POSTGRES_PASSWORD=my-secret-pw" -e "POSTGRES_USER=my-super-user" -e "SYMFONY__ENV__DATABASE_DRIVER=pdo_pgsql" -e 'SYMFONY__ENV__DATABASE_DRIVER_CLASS=Wallabag\CoreBundle\Doctrine\DBAL\Driver\CustomPostgreSQLDriver' -e "SYMFONY__ENV__DATABASE_HOST=wallabag-db" -e "SYMFONY__ENV__DATABASE_PORT=5432" -e "SYMFONY__ENV__DATABASE_NAME=wallabag" -e "SYMFONY__ENV__DATABASE_USER=wallabag" -e "SYMFONY__ENV__DATABASE_PASSWORD=wallapass" -p 80:80 wallabag/wallabag
+$ docker run --name wallabag --link wallabag-db:wallabag-db -e "POSTGRES_PASSWORD=my-secret-pw" -e "POSTGRES_USER=my-super-user" -e "SYMFONY__ENV__DATABASE_DRIVER=pdo_pgsql" -e "SYMFONY__ENV__DATABASE_HOST=wallabag-db" -e "SYMFONY__ENV__DATABASE_PORT=5432" -e "SYMFONY__ENV__DATABASE_NAME=wallabag" -e "SYMFONY__ENV__DATABASE_USER=wallabag" -e "SYMFONY__ENV__DATABASE_PASSWORD=wallapass" -e "SYMFONY__ENV__DOMAIN_NAME=http://localhost" -p 80:80 wallabag/wallabag
 ```
 
 ## Redis
@@ -82,13 +82,13 @@ To use redis with a Docker link, a redis container with the name `redis` is need
 
  ```
 $ docker run -p 6379:6379 --name redis redis:alpine
-$ docker run -p 80:80 --link redis:redis wallabag/wallabag
+$ docker run -p 80:80 -e "SYMFONY__ENV__DOMAIN_NAME=http://localhost" --link redis:redis wallabag/wallabag
 ```
 
 To use redis with an external redis host, set the appropriate environmental variables. Example:
 
 ```
-$ docker run -p 80:80 -e "SYMFONY__ENV__REDIS_HOST=my.server.hostname" -e "SYMFONY__ENV__REDIS_PASSWORD=my-secret-pw" wallabag/wallabag
+$ docker run -p 80:80 -e "SYMFONY__ENV__REDIS_HOST=my.server.hostname" -e "SYMFONY__ENV__REDIS_PASSWORD=my-secret-pw" -e "SYMFONY__ENV__DOMAIN_NAME=http://localhost" wallabag/wallabag
 ```
 
 ## Upgrading
@@ -128,6 +128,7 @@ services:
       - SYMFONY__ENV__MAILER_PASSWORD=~
       - SYMFONY__ENV__FROM_EMAIL=wallabag@example.com
       - SYMFONY__ENV__DOMAIN_NAME=https://your-wallabag-url-instance.com
+      - SYMFONY__ENV__SERVER_NAME="Your wallabag instance"
     ports:
       - "80"
     volumes:
